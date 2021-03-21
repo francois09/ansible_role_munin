@@ -95,16 +95,6 @@
     - munin__configure
     - munin__webserver == 'nginx'
 
-# - name: Remove default service file
-#   file:
-#     path: /etc/nginx/sites-enabled/default
-#     state: absent
-#   notify: Reload nginx service
-#   when:
-#     - munin__install
-#     - munin__configure
-#     - munin__webserver == 'nginx'
-
 - name: Create nginx service file
   template:
     src: vhost.conf
