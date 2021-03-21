@@ -1,0 +1,22 @@
+---
+# Munin handlers
+- name: Restart fcgi_graph service
+  service:
+    name: fcgi_graph
+    state: restarted
+
+- name: Restart fcgi_html service
+  service:
+    name: fcgi_html
+    state: restarted
+
+- name: Reload nginx service
+  service:
+    name: nginx
+    state: reloaded
+
+- name: Restart munin-node service
+  service:
+    name: munin-node
+    state: restarted
+

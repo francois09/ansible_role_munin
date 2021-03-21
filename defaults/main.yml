@@ -1,0 +1,17 @@
+---
+# Default do nothing
+munin__install: False
+munin__configure: False
+munin__client_configure: False
+
+# defaults file for munin
+munin__default_packages:
+  - munin
+  - nginx
+
+munin__default_client_packages:
+  - munin-node
+
+# Can be apache, nginx or others
+munin__webserver: ""
+munin__fcgi_enabled: False

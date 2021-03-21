@@ -1,0 +1,17 @@
+[Unit]
+Description=Fcgi for {{ item }}
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+Restart=on-failure
+PIDFile=/run/fcgi_{{ item }}.pid
+# RestartSec=1
+User=root
+ExecStart=/usr/bin/spawn-fcgi -s /var/run/munin/fastcgi-{{ item }}.sock -P /run/fcgi_{{ item }}.pid -U www-data -u munin -g munin /usr/lib/munin/cgi/munin-cgi-{{ item }}
+ExecReload=kill -HUP $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target

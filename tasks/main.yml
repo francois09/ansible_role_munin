@@ -1,0 +1,128 @@
+---
+- name: Munin install packages
+  apt:
+    name: "{{ munin__default_packages }}"
+    update_cache: yes
+    state: present
+  when: munin__install
+
+- name: Munin node install packages
+  apt:
+    name: "{{ munin__default_client_packages }}"
+    update_cache: yes
+    state: present
+  when:
+    - munin__client_configure
+
+- name: Fast CGI process manager
+  apt:
+    name: spawn-fcgi
+    update_cache: yes
+    state: present
+  when:
+    - munin__install
+    - munin__webserver == 'nginx'
+    - munin__webserver_strategy == 'cgi'
+
+# Create fcgi services
+- name: Create fcgi systemd service files
+  template:
+    src: fcgi_service
+    dest: /etc/systemd/system/fcgi_{{ item }}.service
+  # notify: Restart fcgi_{{ item }} service
+  with_items:
+    - graph
+    - html
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+    - munin__webserver_strategy == 'cgi'
+
+- name: Setup munin config file
+  template:
+    src: munin.conf
+    dest: /etc/munin/munin.conf
+  when:
+    - munin__install
+    - munin__configure
+
+- name: Setup munin node config file
+  template:
+    src: munin-node.conf
+    dest: /etc/munin/munin-node.conf
+  notify: Restart munin-node service
+  when:
+    - munin__client_configure
+
+- name: Enable service
+  service:
+    name: fcgi_{{ item }}
+    enabled: "{% if munin__fcgi_enabled %}yes{% else %}no{% endif %}"
+  with_items:
+    - graph
+    - html
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+    - munin__webserver_strategy == 'cgi'
+
+- name: start service
+  service:
+    name: fcgi_{{ item }}
+    state: started
+  with_items:
+    - graph
+    - html
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+    - munin__webserver_strategy == 'cgi'
+
+- name: Change logfile ownership
+  file:
+    path: /var/log/munin/munin-cgi-{{ item }}.log
+    owner: munin
+    state: file
+    mode: 0640
+  with_items:
+    - graph
+    - html
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+
+# - name: Remove default service file
+#   file:
+#     path: /etc/nginx/sites-enabled/default
+#     state: absent
+#   notify: Reload nginx service
+#   when:
+#     - munin__install
+#     - munin__configure
+#     - munin__webserver == 'nginx'
+
+- name: Create nginx service file
+  template:
+    src: vhost.conf
+    dest: /etc/nginx/sites-available/monitoring
+  notify: Reload nginx service
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+
+- name: Create nginx link service file
+  file:
+    path: /etc/nginx/sites-enabled/monitoring
+    src: /etc/nginx/sites-available/monitoring
+    state: link
+  notify: Reload nginx service
+  when:
+    - munin__install
+    - munin__configure
+    - munin__webserver == 'nginx'
+
