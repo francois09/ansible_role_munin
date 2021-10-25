@@ -19,6 +19,12 @@ Role Variables
 * `munin__webserver_strategy` defines the html and graph page generation stragegy 
 * `munin__email_notification` who should be notified
 * `munin__main_group` Default server group (ie internal domain)
+* `munin__use_ssl` Configure SSL (default: False)
+* `munin__ssl_cert` Path of certificate file
+* `munin__ssl_key` Path of certificate key file
+* `munin__ssl_dhparam` Path of dhparam file
+* `munin__ssl_includefile` Path of specific inclusion file
+
 
 
 Dependencies
