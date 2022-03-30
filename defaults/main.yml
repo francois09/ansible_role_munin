@@ -16,3 +16,5 @@ munin__default_client_packages:
 munin__webserver: ""
 munin__fcgi_enabled: False
 munin__use_ssl: False
+
+munin__internal_network: 192.168.0.0
